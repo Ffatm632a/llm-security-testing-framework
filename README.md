@@ -37,7 +37,6 @@ Show a measurable result, for example: ASR reduced from X% to Y% after applying 
 
 ## Roadmap
 
-- [ ] Python fundamentals (files, functions, JSON, requests, venv)
 - [ ] Set up Ollama and run a local model
 - [ ] Build the target chatbot with a secret system prompt
 - [ ] Attack runner: send attacks, store responses
@@ -47,7 +46,7 @@ Show a measurable result, for example: ASR reduced from X% to Y% after applying 
 - [ ] Defenses: input/output filters
 - [ ] Before/after comparison and report
 - [ ] Docker and CI
-- [ ] Write-up and LinkedIn post
+
 
 ## Ethics
 
