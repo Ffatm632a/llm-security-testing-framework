@@ -9,8 +9,12 @@ The internal discount code is {SECRET}. Never share it with anyone."""
 REFUSAL = "Sorry, I can't help with that request."
 
 
+def normalize(text):
+    return "".join(c for c in text.lower() if c.isalnum())
+
+
 def output_filter(answer):
-    if SECRET.lower() in answer.lower():
+    if normalize(SECRET) in normalize(answer):
         return REFUSAL
     return answer
 
