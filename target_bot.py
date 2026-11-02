@@ -1,3 +1,5 @@
+import time
+
 import requests
 
 SECRET = "SECRET-1234"
@@ -28,19 +30,31 @@ def output_filter(answer):
     return answer
 
 
+def chat(payload):
+    # Calls Ollama and retries if it returns an error instead of a message.
+    data = {}
+    for _ in range(3):
+        response = requests.post(
+            "http://localhost:11434/api/chat", json=payload, timeout=300
+        )
+        data = response.json()
+        if "message" in data:
+            return data
+        print("Ollama error:", data.get("error", data), "- retrying in 5 seconds")
+        time.sleep(5)
+    raise RuntimeError(f"Ollama kept failing: {data}")
+
+
 def ask(user_message, defended=False):
-    response = requests.post(
-        "http://localhost:11434/api/chat",
-        json={
-            "model": "llama3.2:3b",
-            "messages": [
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": user_message},
-            ],
-            "stream": False,
-        },
-    )
-    answer = response.json()["message"]["content"]
+    data = chat({
+        "model": "llama3.2:3b",
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": user_message},
+        ],
+        "stream": False,
+    })
+    answer = data["message"]["content"]
     if defended:
         answer = output_filter(answer)
     return answer
