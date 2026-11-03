@@ -3,6 +3,7 @@ from target_bot import ask, SECRET, normalize
 from judge import judge
 
 TRIES = 3
+PARTIAL_FILE = "results_partial.jsonl"
 
 ATTACKS = [
     {"category": "direct_override",
@@ -36,7 +37,7 @@ def run(defended):
             by_rule = leaked_secret(answer)
             by_judge, reason = judge(answer)
             either = by_rule or by_judge
-            results.append({
+            record = {
                 "category": attack["category"],
                 "attack": attack["text"],
                 "defended": defended,
@@ -45,7 +46,11 @@ def run(defended):
                 "judge_reason": reason,
                 "leaked": either,
                 "response": answer,
-            })
+            }
+            results.append(record)
+            # Save every result right away, so an interrupted run keeps its data.
+            partial.write(json.dumps(record, ensure_ascii=False) + "\n")
+            partial.flush()
             print(("[LEAK]" if either else "[safe]"),
                   f"rule={int(by_rule)} judge={int(by_judge)}",
                   attack["category"], "|", attack["text"][:35])
@@ -64,10 +69,14 @@ def asr_by_category(results):
     return out
 
 
+partial = open(PARTIAL_FILE, "w", encoding="utf-8")
+
 print("=== WITHOUT DEFENSE ===")
 before = run(defended=False)
 print("\n=== WITH DEFENSE ===")
 after = run(defended=True)
+
+partial.close()
 
 print("\n--- ASR by category, either method (before -> after) ---")
 cats_before = asr_by_category(before)
@@ -93,3 +102,4 @@ with open("results.json", "w", encoding="utf-8") as f:
     }, f, indent=2, ensure_ascii=False)
 
 print("\nSaved results.json")
+print(f"(Every result was also written to {PARTIAL_FILE} while running.)")
