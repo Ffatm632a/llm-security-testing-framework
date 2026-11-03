@@ -2,3 +2,5 @@
 .pytest_cache/
 .venv/
 results_partial.jsonl
+discovery_partial.jsonl
+validation_partial.jsonl
